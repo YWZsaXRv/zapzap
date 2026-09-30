@@ -82,13 +82,18 @@ class SysTrayManager:
         instance = cls.instance()
         instance._disconnect_window_actions()
         instance._bound_window = main_window
-        instance._tray.activated.connect(main_window.show_window)
+        instance._tray.activated.connect(instance._on_tray_activated)
         instance._actions["show"].triggered.connect(main_window.show_window)
         instance._actions["settings"].triggered.connect(
             lambda: instance._open_settings(main_window))
         instance._actions["donation"].triggered.connect(
             lambda: instance._open_donations(main_window))
         instance._actions["exit"].triggered.connect(main_window.request_quit)
+
+    def _on_tray_activated(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Context:
+            return
+        self._bound_window.show_window()
 
     def _disconnect_window_actions(self):
         for signal in (
